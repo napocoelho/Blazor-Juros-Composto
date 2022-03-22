@@ -1,0 +1,128 @@
+﻿@page "/jurometro"
+@using Geral.Shared.Helpers
+
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: 50 auto 50 auto 50 auto;
+        grid-row-gap: 5px;
+    }
+
+    .title {
+        font-weight: bold;
+    }
+
+    .derecha {
+        text-align: right;
+    }
+
+    thead {
+        font-weight: bold;
+    }
+</style>
+
+
+
+<h3>Juros Composto</h3>
+
+<br />
+<br />
+
+
+
+
+<div class="grid-container">
+
+    <div>Período (em meses):</div>
+    <div>
+        <input @bind-value="_periodo" /> @( _periodo > 0? $" ou {(_periodo / 12m).Round(0)} ano(s) e {(_periodo % 12m)} mês(es)" : "")
+    </div>
+
+    <div>Capital (R$):</div>
+    <div>
+        <input @bind-value="_capitalInicial" />
+    </div>
+
+    <div>Juros (%):</div>
+    <div>
+        <input @bind-value="_aliquotaDoJuros" />
+    </div>
+
+</div>
+
+
+<br />
+
+
+<div>
+    <button @onclick="Calcular" class="btn btn-primary" type="button">
+        <span class="glyphicon glyphicon glyphicon-shopping-cart">Calcular</span>
+
+
+    </button>
+</div>
+
+<br />
+<br />
+
+
+<table class="table table-alert-primary table-striped table-hover table-bordered table-condensed">
+
+    <thead class="thead-dark">
+        <tr>
+            <td>Período</td>
+            <td class="derecha">Capital</td>
+            <td class="derecha">Juros do período</td>
+            <td class="derecha">Juros acumulado</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Juros item in _valores)
+        {
+            <tr>
+
+                <td>@item.Periodo</td>
+                <td class="derecha">R$ @item.Capital.ToString("0.00")</td>
+                <td class="derecha">R$ @item.JurosPeriodo.ToString("0.00")</td>
+                <td class="derecha">R$ @item.JurosAcumulado.ToString("0.00")</td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+
+@code
+{
+
+    int _periodo = 24;
+    decimal? _capitalInicial = 0m;
+    decimal? _aliquotaDoJuros = 0m;
+
+    bool _isPeriodoDisabled = true;
+
+    List<Juros> _valores = new List<Juros>();
+
+    protected async override Task OnInitializedAsync()
+    {
+
+
+        await base.OnInitializedAsync();
+    }
+
+
+
+    void Limpar()
+    {
+        _valores = new List<Juros>();
+    }
+
+    void Calcular()
+    {
+        _valores = Jurômetro.CalcularJurosComposto(_periodo, _capitalInicial ?? 0, _aliquotaDoJuros ?? 0);
+    }
+
+
+}
